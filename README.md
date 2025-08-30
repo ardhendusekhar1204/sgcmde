@@ -70,3 +70,6 @@ python train.py --config configs/kirc_sgcmde.py
 
 ## 🌡️ Final Plot
 python plot.py --config configs/kirc_sgcmde.py
+<p align="center">
+  <img src="plots/e7acec172470f0b019c9b57bb3b0f1752e90355f.png" alt="Centered Image" width="500"/>
+</p>
