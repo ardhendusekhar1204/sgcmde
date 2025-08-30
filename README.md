@@ -33,30 +33,33 @@ Extract patch-level features with a ViT(https://github.com/lunit-io/benchmark-ss
 
 4. Annoation files and folder structure
 Prepare the annotaion file as in SCMIL(https://github.com/yang-ze-kang/SCMIL). Prepare you own 'wsi_annos_vit-s-dino-p16.txt' file.
+
+## 📂 Dataset Structure
+
 data/
 ├── kirc/
-│   ├── 5fold_wsi-rnaseq/
-│   │   ├── fold1/
-│   │   │   ├── train.txt
-│   │   │   └── val.txt
-│   │   ├── fold2/
-│   │   ├── fold3/
-│   │   ├── fold4/
-│   │   └── fold5/
-│   ├── clinical.csv
-│   └── wsi_annos_vit-s-dino-p16.txt
+│ ├── 5fold_wsi-rnaseq/
+│ │ ├── fold1/
+│ │ │ ├── train.txt
+│ │ │ └── val.txt
+│ │ ├── fold2/
+│ │ ├── fold3/
+│ │ ├── fold4/
+│ │ └── fold5/
+│ ├── clinical.csv
+│ └── wsi_annos_vit-s-dino-p16.txt
 └── luad/
-    ├── 5fold_wsi-rnaseq/
-    │   ├── fold1/
-    │   │   ├── train.txt
-    │   │   └── val.txt
-    │   ├── fold2/
-    │   ├── fold3/
-    │   ├── fold4/
-    │   └── fold5/
-    ├── clinical.csv
-    └── wsi_annos_vit-s-dino-p16.txt
- 
+├── 5fold_wsi-rnaseq/
+│ ├── fold1/
+│ │ ├── train.txt
+│ │ └── val.txt
+│ ├── fold2/
+│ ├── fold3/
+│ ├── fold4/
+│ └── fold5/
+├── clinical.csv
+└── wsi_annos_vit-s-dino-p16.txt
+
 ## 🧪  Train the model
 python train.py --config configs/kirc_sgcmde.py
 
