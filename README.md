@@ -66,7 +66,7 @@ data/
 ```
     
 ## 🧪  Train the model
-python train.py --config configs/kirc_sgcmde.py
+python train.py --config configs/luad_sgcmde.py
 
 ## 🌡️ Final Plot
 python plot.py --config configs/luad_sgcmde.py
