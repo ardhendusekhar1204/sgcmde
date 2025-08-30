@@ -73,3 +73,6 @@ python plot.py --config configs/luad_sgcmde.py
 <p align="center">
   <img src="plots/luad.png" alt="Centered Image" width="500"/>
 </p>
+
+## 📚 Acknowledgements
+Thanks Zekang Yang, Hong Liu, and Xiangdong Wang for the public access of the codebase https://github.com/yang-ze-kang/SCMIL
