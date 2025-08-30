@@ -3,22 +3,25 @@
 ## 🔄 Pipeline Steps for creating the Virtual Environment
 
 1. Create and activate environment
-conda create -n scmil python=3.9 -y
-conda activate scmil
+   conda create -n scmil python=3.9 -y
+   conda activate scmil
 
 
 2. Install PyTorch (CUDA 11.3 build)
-pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 \
-  --extra-index-url https://download.pytorch.org/whl/cu113
-⚠️ Make sure your GPU driver supports CUDA 11.3.
+
+   pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 \
+   --extra-index-url https://download.pytorch.org/whl/cu113
+   
 
 3. Install RAPIDS cuDF/cuML
-pip install --extra-index-url=https://pypi.nvidia.com \
-  cudf-cu11==23.10.0 cuml-cu11==23.10.0
-These libraries require an NVIDIA GPU with CUDA 11. Skip if not needed.
+
+   pip install --extra-index-url=https://pypi.nvidia.com \
+   cudf-cu11==23.10.0 cuml-cu11==23.10.0
+  
 
 4. Install other Python dependencies
-pip install tqdm lifelines munch tensorboardX einops h5py seaborn
+
+   pip install tqdm lifelines munch tensorboardX einops h5py seaborn
 
 ## 📂 Data Preparation
 
