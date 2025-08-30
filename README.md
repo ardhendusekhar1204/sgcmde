@@ -71,5 +71,5 @@ python train.py --config configs/kirc_sgcmde.py
 ## 🌡️ Final Plot
 python plot.py --config configs/luad_sgcmde.py
 <p align="center">
-  <img src="plots/2.png" alt="Centered Image" width="500"/>
+  <img src="plots/luad.png" alt="Centered Image" width="500"/>
 </p>
