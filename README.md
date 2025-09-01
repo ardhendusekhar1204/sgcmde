@@ -3,8 +3,8 @@
 ## 🔄 Pipeline Steps for creating the Virtual Environment
 
 1. Create and activate environment
-   conda create -n scmil python=3.9 -y
-   conda activate scmil
+   conda create -n scgmde python=3.9 -y
+   conda activate sgcmde
 
 
 2. Install PyTorch (CUDA 11.3 build)
