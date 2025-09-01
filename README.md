@@ -10,13 +10,11 @@
 
 
 2. Install PyTorch (CUDA 11.3 build)
-   ```bash
+   ```
     pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
    ```
 
-   pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url h
-
-4. Install RAPIDS cuDF/cuML
+3. Install RAPIDS cuDF/cuML
    ```
    pip install --extra-index-url=https://pypi.nvidia.com cudf-cu11==23.10.0 cuml-cu11==23.10.0
    ```
