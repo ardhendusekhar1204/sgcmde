@@ -4,7 +4,7 @@
 
 1. Create and activate environment
    ```
-   conda create -n scgmde python=3.9 
+   conda create -n sgcmde python=3.9 
 
    conda activate sgcmde
    ```
