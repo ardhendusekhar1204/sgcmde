@@ -38,6 +38,8 @@ Extract patch-level features with a ViT(https://github.com/lunit-io/benchmark-ss
 4. Annoation files and folder structure
 Prepare the annotaion file as in SCMIL(https://github.com/yang-ze-kang/SCMIL). Prepare you own 'wsi_annos_vit-s-dino-p16.txt' file.
 
+5. While running the train script, some errors may appear after creating the virtual environment. If errors appear then follow the steps in the text file 'changes_in_virtual_env_types_python_file.txt' right after the creation of the virtual environment.
+
 ## 📂 Dataset Structure
 
 ```
