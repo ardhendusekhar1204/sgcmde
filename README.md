@@ -68,7 +68,7 @@ data/
 ```
     
 ## 🧪  Train the model
-python train.py --config configs/luad_sgcmde.py
+python train.py --config configs/luad_sgcmde.yaml
 
 ## 🌡️ Final Plot
 python plot.py --config configs/luad_sgcmde.py
