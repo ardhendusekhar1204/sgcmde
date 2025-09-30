@@ -71,7 +71,7 @@ data/
 python train.py --config configs/luad_sgcmde.yaml
 
 ## 🌡️ Final Plot
-python plot.py --config configs/luad_sgcmde.py
+python plot.py --config configs/luad_sgcmde.yaml
 <p align="center">
   <img src="plots/luad.png" alt="Centered Image" width="500"/>
 </p>
