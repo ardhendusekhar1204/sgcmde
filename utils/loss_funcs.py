@@ -44,10 +44,10 @@ class NLLELGE(object):
                     - torch.log(survival_func + 1e-6)
         
         reg_loss = 0
-        if 'L_div' in datas:
-            reg_loss += self.lambda_div * datas['L_div']
+        #if 'L_div' in datas:
+            #reg_loss += self.lambda_div * datas['L_div']
         if 'L_ent' in datas:
-            reg_loss += self.lambda_ent * datas['L_ent']
+            reg_loss -= self.lambda_ent * datas['L_ent']
 
         return base_loss + reg_loss
 

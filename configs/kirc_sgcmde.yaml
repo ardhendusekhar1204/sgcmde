@@ -1,7 +1,7 @@
 config_name: sgcmde
 model:
   model_name: SurvivalEGMDM
-  E: 2
+  E: 5
   K: 100
   param_share: ['mu','sigma']
   backbone_name: SGCMDE
@@ -11,7 +11,7 @@ model:
   deep: 1
   dropout_rate: 0.25
   dynamic_filter: True
-save_dir: logs3/kirc
+save_dir: logs/kirc
 device: cuda
 seed: 0
 batch_size: 1

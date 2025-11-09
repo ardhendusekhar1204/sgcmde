@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from math import sqrt, pi, log
 
-# ---------- helpers from your original code ----------
 def inverse_softplus(x):
     return torch.log(torch.exp(x) - 1 + 1e-6)
 
@@ -19,10 +18,7 @@ def logsumexp(a, dim, b):
     out = torch.log(torch.sum(b * torch.exp(a - a_max), dim=dim, keepdims=True) + 1e-6)
     out += a_max
     return out
-# ---------------------------------------------------------------------------
 
-
-# ----------------- generic two‑layer MLP (unchanged) -----------------------
 class MLP(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, dropout=0.25):
         super().__init__()
@@ -32,8 +28,6 @@ class MLP(nn.Module):
             nn.Linear(hidden_size, output_size)
         )
     def forward(self, x): return self.net(x)
-# ---------------------------------------------------------------------------
-
 
 class EGMDM(nn.Module):
     def __init__(self, backbone,
@@ -45,7 +39,7 @@ class EGMDM(nn.Module):
 
         self.E, self.K = E, K
         self.param_share = param_share
-        self.backbone = backbone                      # e.g. ViT, CLIP‑proj …
+        self.backbone = backbone                     
 
         # ---------- gating network ----------
         self.gate = MLP(input_size, hidden_size, E, dropout)
@@ -60,7 +54,7 @@ class EGMDM(nn.Module):
         shared = {}
         if 'mu' in param_share:
             shared['mu'] = nn.Parameter(torch.linspace(0, 200, K)
-                                        .unsqueeze(0))           # (1,K)
+                                        .unsqueeze(0))           
         if 'sigma' in param_share:
             shared['sigma'] = nn.Parameter(torch.ones(1, K))
         self.shared = nn.ParameterDict(shared)
@@ -69,9 +63,9 @@ class EGMDM(nn.Module):
         self.layer_mu    = nn.Linear(K, K, bias=False)
         self.layer_sigma = nn.Linear(K, K, bias=False)
 
-    # ------------ utilities (unchanged) ------------
+
     def _jacobian(self, t):
-        return torch.exp(t) / (torch.exp(t) - 1 + 1e-6)          # |dy/dt|
+        return torch.exp(t) / (torch.exp(t) - 1 + 1e-6)          
 
     def _cdf_single(self, w, mu, sigma, t):
         """
@@ -80,14 +74,14 @@ class EGMDM(nn.Module):
         # Check for NaN values in mu or sigma
         if torch.any(torch.isnan(mu)) or torch.any(torch.isnan(sigma)):
             print("NaN detected in mu or sigma!")
-            # Replace NaN values with default values (e.g., 0 for mu, small value for sigma)
+            
             mu = torch.nan_to_num(mu, nan=0.0)
-            sigma = torch.nan_to_num(sigma, nan=1e-3)  # Prevent division by zero
+            sigma = torch.nan_to_num(sigma, nan=1e-3) 
 
-        y = safe_inverse_softplus(t).unsqueeze(-1)  # (...,1)
+        y = safe_inverse_softplus(t).unsqueeze(-1) 
         normal = torch.distributions.Normal(mu, sigma)
         F_y = normal.cdf(y.repeat_interleave(self.K, -1))
-        return (w * F_y).sum(-1)  # (...)
+        return (w * F_y).sum(-1)  
 
 
     def cdf(self, params, t):  # keep public API unchanged
@@ -114,17 +108,17 @@ class EGMDM(nn.Module):
         B = h.size(0)
 
         # ---- gating weights ----
-        G = self.gate(h).softmax(-1)  # (B,E)
+        G = self.gate(h).softmax(-1)  
 
         # ---- collect expert‑specific params ----
         expert_params = []
         for e in range(self.E):
-            out = self.heads[e](h)  # (B, K*(3-|share|))
+            out = self.heads[e](h)  
             offset = 0
             p = {}
             for name in ('w', 'mu', 'sigma'):
                 if name in self.param_share:
-                    p[name] = self.shared[name]  # (1,K)
+                    p[name] = self.shared[name]  
                 else:
                     p[name] = out[:, offset:offset + self.K]
                     offset += self.K
@@ -139,22 +133,22 @@ class EGMDM(nn.Module):
             # Check for NaN values in mu or sigma
             if torch.any(torch.isnan(p['mu'])) or torch.any(torch.isnan(p['sigma'])):
                 print(f"NaN detected in mu or sigma for expert {e}. Replacing with default values.")
-                p['mu'] = torch.nan_to_num(p['mu'], nan=0.0)  # Replace NaNs in mu with default value (0)
-                p['sigma'] = torch.nan_to_num(p['sigma'], nan=1e-3)  # Replace NaNs in sigma with default value (1e-3)
+                p['mu'] = torch.nan_to_num(p['mu'], nan=0.0)  
+                p['sigma'] = torch.nan_to_num(p['sigma'], nan=1e-3)  
 
             expert_params.append(p)  # list length E
 
         # ---- MoE aggregation ----
-        w_stack = torch.stack([p['w'] for p in expert_params], dim=1)  # (B,E,K)
-        mu_stack = torch.stack([p['mu'] for p in expert_params], dim=1)  # (B,E,K)
-        sig_stack = torch.stack([p['sigma'] for p in expert_params], dim=1)  # (B,E,K)
+        w_stack = torch.stack([p['w'] for p in expert_params], dim=1)  
+        mu_stack = torch.stack([p['mu'] for p in expert_params], dim=1)  
+        sig_stack = torch.stack([p['sigma'] for p in expert_params], dim=1) 
 
-        # mixture weights: G_e * λ_e,k → shape (B,E,K)
+        # mixture weights: G_e * λ_e,k 
         W = G.unsqueeze(-1) * w_stack
 
         params = {
-            'w': W.view(B, -1, self.K).sum(1),  # (B,K)  final λ_k
-            'mu': (W * mu_stack).sum(1) / W.sum(1).clamp_min(1e-6),  # (B,K)
+            'w': W.view(B, -1, self.K).sum(1),
+            'mu': (W * mu_stack).sum(1) / W.sum(1).clamp_min(1e-6),  
             'sigma': (W * sig_stack).sum(1) / W.sum(1).clamp_min(1e-6)
         }
 
@@ -165,8 +159,8 @@ class EGMDM(nn.Module):
         mu_diff = 0.0
         for i in range(self.E):
             for j in range(i + 1, self.E):
-                diff = (mu_stack[:, i] - mu_stack[:, j])  # (B, K)
-                mu_diff += (diff ** 2).sum(-1).mean()     # scalar
+                diff = (mu_stack[:, i] - mu_stack[:, j])  
+                mu_diff += (diff ** 2).sum(-1).mean()    
 
         L_div = mu_diff / (self.E * (self.E - 1) / 2)
 
@@ -246,7 +240,7 @@ class EGMDM(nn.Module):
     def predict_step(self, x_dict):
         device = x_dict['x'].device
         with torch.no_grad():
-            params, _, _ = self(**x_dict)  # Unpack three values, ignore subloss and extra_losses
+            params, _, _ = self(**x_dict)  
             t = torch.arange(0.1, 220.1, 0.1, device=device)
             surv = 1. - self.cdf(params, t)
         return {'t': t, 'p_survival': surv}

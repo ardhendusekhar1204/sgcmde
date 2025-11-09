@@ -68,53 +68,53 @@ class HierarchicalClusterLocalAttention(nn.Module):
 
         # Apply softmax to ensure weights sum to 1
         weights = F.softmax(self.weight_params, dim=0)
-        w_morph = weights[0]  # Morphological weight (w1)
-        w_spatial = weights[1]  # Spatial weight (w2)
+        w_morph = weights[0]  
+        w_spatial = weights[1]  
 
         if self.feature_weight == -1:
             labels = torch.randint(0, n_cluster, (L,), device=x.device, dtype=torch.long).cpu().numpy()
         else:
             with torch.no_grad():
                 # Normalize features and coordinates on GPU
-                feats = x.squeeze(0)  # Shape: [L, C]
-                coords_norm = coords.squeeze(0)  # Shape: [L, 2]
+                feats = x.squeeze(0)  
+                coords_norm = coords.squeeze(0)  
                 feats_norm = (feats - feats.mean(dim=0)) / (feats.std(dim=0) + 1e-6)
                 coords_norm = (coords_norm - coords_norm.mean(dim=0)) / (coords_norm.std(dim=0) + 1e-6)
-                feats_norm = F.normalize(feats_norm, p=2, dim=1)  # L2 normalize
+                feats_norm = F.normalize(feats_norm, p=2, dim=1)  
             
                 
                 # Batch processing for similarity computation
-                batch_size = 1000  # Adjust based on GPU memory
-                k = min(10, L - 1)  # Number of neighbors
+                batch_size = 1000  
+                k = min(10, L - 1)  
                 indices = torch.zeros(L, k, device=x.device, dtype=torch.long)
                 values = torch.zeros(L, k, device=x.device, dtype=torch.float32)
                 
                 for i in range(0, L, batch_size):
                     end = min(i + batch_size, L)
-                    feats_batch = feats_norm[i:end]  # Shape: [batch_size, C]
-                    coords_batch = coords_norm[i:end]  # Shape: [batch_size, 2]
+                    feats_batch = feats_norm[i:end]  
+                    coords_batch = coords_norm[i:end]  
                     
                     # Cosine similarity
-                    cosine_sim = torch.matmul(feats_batch, feats_norm.T)  # Shape: [batch_size, L]
+                    cosine_sim = torch.matmul(feats_batch, feats_norm.T)  
                     
                     # Euclidean distance
-                    dist = torch.cdist(coords_batch, coords_norm, p=2)  # Shape: [batch_size, L]
-                    sigma = dist.std() + 1e-6  # Scaling factor
-                    spatial_sim = torch.exp(-dist / sigma)  # Shape: [batch_size, L]
+                    dist = torch.cdist(coords_batch, coords_norm, p=2)  
+                    sigma = dist.std() + 1e-6  
+                    spatial_sim = torch.exp(-dist / sigma)  
                     
                     # Combine similarities
                     similarity = w_morph * cosine_sim + w_spatial * spatial_sim
                     del cosine_sim, dist, spatial_sim  # Free memory
                     
                     # Get top-k neighbors
-                    topk_vals, topk_idx = torch.topk(similarity, k, dim=1)  # Shapes: [batch_size, k]
+                    topk_vals, topk_idx = torch.topk(similarity, k, dim=1)  
                     indices[i:end] = topk_idx
                     values[i:end] = topk_vals
                     del similarity, topk_vals, topk_idx  # Free memory
                 
                 # Build sparse k-NN graph
                 knn_graph = torch.zeros(L, k, device=x.device, dtype=torch.float32)
-                knn_graph = values / (values.sum(dim=1, keepdim=True) + 1e-6)  # Normalize
+                knn_graph = values / (values.sum(dim=1, keepdim=True) + 1e-6)  
                
                 # Convert to cupy for cuml.KMeans
                 knn_graph_cupy = cp.asarray(knn_graph)
@@ -123,7 +123,7 @@ class HierarchicalClusterLocalAttention(nn.Module):
                 try:
                     kmeans = KMeans(n_clusters=n_cluster, init='k-means++', tol=1e-4, max_iter=50, random_state=1)
                     labels = kmeans.fit_predict(knn_graph_cupy)
-                    labels = cp.asnumpy(labels)  # Convert to numpy for indexing
+                    labels = cp.asnumpy(labels) 
                 
                 except Exception as e:
                     print(f"Graph-based clustering failed: {e}, falling back to random clustering")
